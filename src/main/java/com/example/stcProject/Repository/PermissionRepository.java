@@ -4,4 +4,6 @@ import com.example.stcProject.Model.Entity.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PermissionRepository extends JpaRepository<Permission, Long> {
+
+    Permission findOneByUserEmail(String userEmail);
 }

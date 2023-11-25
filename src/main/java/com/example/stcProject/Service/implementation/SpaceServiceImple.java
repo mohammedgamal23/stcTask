@@ -55,13 +55,11 @@ public class SpaceServiceImple implements SpaceService {
         perm1.setGroup(permGroup);
         permissionRepository.save(perm1);
 
-
         var perm2 = new Permission();
         perm2.setUserEmail("user2");
         perm2.setPermissionLevel(PermissionLevel.EDIT);
         perm2.setGroup(permGroup);
         permissionRepository.save(perm2);
-
 
 
         var item = new Item();

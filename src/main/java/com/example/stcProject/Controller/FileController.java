@@ -1,5 +1,6 @@
 package com.example.stcProject.Controller;
 
+import com.example.stcProject.Model.Entity.File;
 import com.example.stcProject.Service.implementation.FileServiceImple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -10,9 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -24,14 +22,25 @@ public class FileController {
 
     @PostMapping("/{spaceName}/{folderName}/upload")
     public ResponseEntity<String> upload(@PathVariable String spaceName,
-                                     @PathVariable String folderName,
-                                     @RequestParam("file") MultipartFile file) throws Exception {
-//        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-//                .path(BASE_DIRECTORY)
-//                .path(spaceName).path(folderName)
-//                .toUriString();
+                                         @PathVariable String folderName,
+                                         @RequestParam("file") MultipartFile file,
+                                         @RequestParam String userEmail) throws Exception {
         try {
-            Path path = fileServiceImple.createNewFileInFolderInSpace(spaceName, folderName, file);
+            Path path = fileServiceImple.createNewFileInFolderInSpace(spaceName, folderName, file, userEmail);
+            return ResponseEntity.ok(path.toString());
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
+                    .body(e.getMessage());
+
+        }
+    }
+
+    @PostMapping("/{spaceName}/upload")
+    public ResponseEntity<String> upload(@PathVariable String spaceName,
+                                         @RequestParam("file") MultipartFile file,
+                                         @RequestParam String userEmail) throws Exception {
+        try {
+            Path path = fileServiceImple.createNewFileInSpace(spaceName, file, userEmail);
             return ResponseEntity.ok(path.toString());
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
@@ -51,25 +60,15 @@ public class FileController {
     }
 
     @GetMapping("/{fileId}/download")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
-        // Get file content as a byte array
-        byte[] fileContent = fileServiceImple.getFileContentById(fileId);
+    public ResponseEntity<?> downloadFile(@PathVariable Long fileId) {
 
-        // Create a ByteArrayResource with file content
-        ByteArrayResource resource = new ByteArrayResource(fileContent);
+        File file = fileServiceImple.getFileContentById(fileId);
+        byte[] fileContent =file.getBinary();
 
-        // Set content disposition header for download
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=file_" + fileId + ".bin");
-
-        // Set content type
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-        // Return ResponseEntity with ByteArrayResource and headers
         return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(fileContent.length)
-                .body(resource);
+                .contentType(MediaType.parseMediaType(fileServiceImple.getFileMetadata(fileId).get("Content-Type")))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getItem().getName() + "\"")
+                .body(fileContent);
     }
 
 }

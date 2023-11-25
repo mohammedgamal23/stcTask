@@ -14,9 +14,10 @@ public class FolderController {
 
     @PostMapping("/{spaceName}/{folderName}")
     public ResponseEntity<String> createNewFolderInSpace(@PathVariable String spaceName,
-                                                         @PathVariable String folderName) {
+                                                         @PathVariable String folderName,
+                                                         @RequestParam String userEmail) {
         try {
-            folderServiceImple.createNewFolderInSpace(spaceName, folderName);
+            folderServiceImple.createNewFolderInSpace(spaceName, folderName, userEmail);
             return ResponseEntity.ok("folder created successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())

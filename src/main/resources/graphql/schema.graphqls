@@ -1,0 +1,20 @@
+type File {
+    id: ID!
+    binary: String!
+    item: Item
+}
+
+type Item {
+    id: ID!
+}
+
+type Query {
+    getFileById(id: ID!): File
+    getAllFiles: [File]
+}
+
+type Mutation {
+    createFile(binary: String!, itemId: ID): File
+    updateFile(id: ID!, binary: String, itemId: ID): File
+    deleteFile(id: ID!): Boolean
+}

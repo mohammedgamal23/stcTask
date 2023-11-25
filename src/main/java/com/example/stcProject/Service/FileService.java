@@ -7,7 +7,9 @@ import java.util.Map;
 
 public interface FileService {
 
-    Path createNewFileInFolderInSpace(String spaceName, String folderName, MultipartFile file) throws Exception;
+    Path createNewFileInFolderInSpace(String spaceName, String folderName, MultipartFile file, String userEmail) throws Exception;
 
     Map<String, String> getFileMetadata(Long fileId);
+
+    Path createNewFileInSpace(String spaceName, MultipartFile file, String userEmail) throws Exception;
 }

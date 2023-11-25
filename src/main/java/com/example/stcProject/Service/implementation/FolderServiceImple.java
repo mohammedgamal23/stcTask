@@ -26,7 +26,14 @@ public class FolderServiceImple implements FolderService {
     private PermissionRepository permissionRepository;
 
     @Override
-    public void createNewFolderInSpace(String spaceName, String folderName) throws Exception {
+    public void createNewFolderInSpace(String spaceName, String folderName, String userEmail) throws Exception {
+
+        Permission userPermission = permissionRepository.findOneByUserEmail(userEmail);
+
+        if (userPermission.getPermissionLevel().equals(PermissionLevel.VIEW)){
+            throw new Exception("Permission Denied");
+        }
+
         // Create the full path for the space directory
         Path spacePath = Paths.get(BASE_DIRECTORY, spaceName);
 
@@ -54,29 +61,10 @@ public class FolderServiceImple implements FolderService {
             throw new Exception("Space directory not found");
         }
 
-        var permGroup = new PermissionGroup();
-        permGroup.setGroupName("notAdminGroup");
-        permissionGroupRepository.save(permGroup);
-
-        var perm1 = new Permission();
-        perm1.setUserEmail("user1");
-        perm1.setPermissionLevel(PermissionLevel.VIEW);
-        perm1.setGroup(permGroup);
-        permissionRepository.save(perm1);
-
-
-        var perm2 = new Permission();
-        perm2.setUserEmail("user2");
-        perm2.setPermissionLevel(PermissionLevel.EDIT);
-        perm2.setGroup(permGroup);
-        permissionRepository.save(perm2);
-
-
-
         var item = new Item();
-        item.setName(spaceName);
+        item.setName(folderName);
         item.setType(ItemType.FOLDER);
-        item.setPermissionGroup(permGroup);
+        item.setPermissionGroup(userPermission.getGroup());
         itemRepository.save(item);
 
     }

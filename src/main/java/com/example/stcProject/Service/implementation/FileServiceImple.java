@@ -43,7 +43,13 @@ public class FileServiceImple implements FileService {
 
 
     @Override
-    public Path createNewFileInFolderInSpace(String spaceName, String folderName, MultipartFile file) throws Exception {
+    public Path createNewFileInFolderInSpace(String spaceName, String folderName, MultipartFile file, String userEmail) throws Exception {
+        Permission userPermission = permissionRepository.findOneByUserEmail(userEmail);
+
+        if (userPermission.getPermissionLevel().equals(PermissionLevel.VIEW)){
+            throw new Exception("Permission Denied");
+        }
+
         // Create the full path for the space directory
         Path spacePath = Paths.get(BASE_DIRECTORY, spaceName);
 
@@ -57,29 +63,11 @@ public class FileServiceImple implements FileService {
             throw new Exception("folder not found");
         }
 
-        var permGroup = new PermissionGroup();
-        permGroup.setGroupName("notSoAdminGroup");
-        permissionGroupRepository.save(permGroup);
-
-        var perm1 = new Permission();
-        perm1.setUserEmail("user1");
-        perm1.setPermissionLevel(PermissionLevel.VIEW);
-        perm1.setGroup(permGroup);
-        permissionRepository.save(perm1);
-
-
-        var perm2 = new Permission();
-        perm2.setUserEmail("user2");
-        perm2.setPermissionLevel(PermissionLevel.EDIT);
-        perm2.setGroup(permGroup);
-        permissionRepository.save(perm2);
-
-
 
         var item = new Item();
         item.setName(file.getOriginalFilename());
         item.setType(ItemType.FILE);
-        item.setPermissionGroup(permGroup);
+        item.setPermissionGroup(userPermission.getGroup());
         itemRepository.save(item);
 
         File file1 = new File();
@@ -104,9 +92,43 @@ public class FileServiceImple implements FileService {
         return TikaFileMetadataExtractor.inferContentType(resultList.get(0).getBinary());
     }
 
-    public byte[] getFileContentById(Long fileId) {
+    @Override
+    public Path createNewFileInSpace(String spaceName, MultipartFile file, String userEmail) throws Exception {
+        Permission userPermission = permissionRepository.findOneByUserEmail(userEmail);
+
+        if (userPermission.getPermissionLevel().equals(PermissionLevel.VIEW)){
+            throw new Exception("Permission Denied");
+        }
+
+        // Create the full path for the space directory
+        Path spacePath = Paths.get(BASE_DIRECTORY, spaceName);
+
+        // Check if the space directory exists
+        if (!Files.exists(spacePath) && !Files.isDirectory(spacePath)) {
+            System.out.println("Space directory not found: " + spacePath.toString());
+            throw new Exception("Space directory not found");
+        }
+
+        var item = new Item();
+        item.setName(file.getOriginalFilename());
+        item.setType(ItemType.FILE);
+        item.setPermissionGroup(userPermission.getGroup());
+        itemRepository.save(item);
+
+        File file1 = new File();
+        file1.setBinary(file.getBytes());
+        file1.setItem(item);
+        fileRepository.save(file1);
+
+        Files.copy(file.getInputStream(), spacePath.resolve(file.getOriginalFilename()), REPLACE_EXISTING);
+
+        return spacePath.resolve(file.getOriginalFilename());
+
+    }
+
+    public File getFileContentById(Long fileId) {
         Optional<File> file=  fileRepository.findById(fileId);
-        return file.map(File::getBinary).orElse(null);
+        return file.orElse(null);
     }
 
 }
