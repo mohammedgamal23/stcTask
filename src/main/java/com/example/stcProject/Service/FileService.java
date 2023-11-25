@@ -1,5 +1,6 @@
 package com.example.stcProject.Service;
 
+import com.example.stcProject.Model.Entity.File;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
@@ -12,4 +13,7 @@ public interface FileService {
     Map<String, String> getFileMetadata(Long fileId);
 
     Path createNewFileInSpace(String spaceName, MultipartFile file, String userEmail) throws Exception;
+
+    File getFileById(Long id);
+
 }

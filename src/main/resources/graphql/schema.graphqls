@@ -9,9 +9,9 @@ type Item {
 }
 
 type Query {
-    getFileById(id: ID!): File
-    getAllFiles: [File]
+    getFileById(fileId: ID!): File
 }
+
 
 type Mutation {
     createFile(binary: String!, itemId: ID): File

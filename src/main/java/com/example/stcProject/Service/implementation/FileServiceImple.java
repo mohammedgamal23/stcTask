@@ -126,6 +126,11 @@ public class FileServiceImple implements FileService {
 
     }
 
+    @Override
+    public File getFileById(Long id) {
+        return fileRepository.findById(id).orElse(null);
+    }
+
     public File getFileContentById(Long fileId) {
         Optional<File> file=  fileRepository.findById(fileId);
         return file.orElse(null);

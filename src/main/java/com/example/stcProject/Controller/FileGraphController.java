@@ -16,8 +16,11 @@ public class FileGraphController {
     private FileRepository fileRepository;
 
     @QueryMapping
-    Optional<File> getFileById(@Argument Long fileId){
-        return fileRepository.findById(fileId);
+    File getFileById(@Argument Long fileId){
+        return fileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("File not found for ID: " + fileId));
     }
+
+
 
 }
