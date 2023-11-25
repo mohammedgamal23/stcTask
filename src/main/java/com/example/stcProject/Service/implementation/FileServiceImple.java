@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.example.stcProject.Service.implementation.SpaceServiceImple.BASE_DIRECTORY;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Service
 @AllArgsConstructor
@@ -42,7 +43,7 @@ public class FileServiceImple implements FileService {
 
 
     @Override
-    public void createNewFileInFolderInSpace(String spaceName, String folderName, MultipartFile file) throws Exception {
+    public Path createNewFileInFolderInSpace(String spaceName, String folderName, MultipartFile file) throws Exception {
         // Create the full path for the space directory
         Path spacePath = Paths.get(BASE_DIRECTORY, spaceName);
 
@@ -86,6 +87,9 @@ public class FileServiceImple implements FileService {
         file1.setItem(item);
         fileRepository.save(file1);
 
+        Files.copy(file.getInputStream(), spacePath.resolve(folderName).resolve(file.getOriginalFilename()), REPLACE_EXISTING);
+
+        return spacePath.resolve(folderName).resolve(file.getOriginalFilename());
     }
 
     @Override

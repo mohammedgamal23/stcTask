@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 
 @RestController
@@ -30,8 +31,8 @@ public class FileController {
 //                .path(spaceName).path(folderName)
 //                .toUriString();
         try {
-            fileServiceImple.createNewFileInFolderInSpace(spaceName, folderName, file);
-            return ResponseEntity.noContent().build();
+            Path path = fileServiceImple.createNewFileInFolderInSpace(spaceName, folderName, file);
+            return ResponseEntity.ok(path.toString());
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST.value())
                     .body(e.getMessage());
