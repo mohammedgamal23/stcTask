@@ -26,6 +26,7 @@ public class SpaceServiceImple implements SpaceService {
     private PermissionRepository permissionRepository;
 
     // absolute path
+    // change it to a valid path on your pc for testing purposes
     public static final String BASE_DIRECTORY = "C:\\Users\\MyPC\\Desktop\\stc\\stcProject\\stcProject\\spaces";
 
     public void createNewSpaceDirectory(String spaceName) throws Exception {
